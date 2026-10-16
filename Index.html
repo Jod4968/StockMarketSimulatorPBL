@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StockSim</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        header {
+            background: #183b66;
+            color: white;
+            padding: 20px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .container {
+            width: 88%;
+            margin: 30px auto;
+        }
+
+        .cards {
+            display: flex;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            flex: 1;
+            border-radius: 8px;
+        }
+
+        .card h2 {
+            color: green;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            margin-bottom: 35px;
+        }
+
+        th, td {
+            padding: 14px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #dce5f0;
+        }
+
+        .up {
+            color: green;
+        }
+
+        .down {
+            color: red;
+        }
+
+        button {
+            padding: 8px 18px;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .buy {
+            background: green;
+        }
+
+        .sell {
+            background: #d93025;
+        }
+
+        footer {
+            background: #e5eaf0;
+            text-align: center;
+            padding: 15px;
+        }
+
+        @media (max-width: 700px) {
+            .cards {
+                flex-direction: column;
+            }
+
+            .container {
+                width: 95%;
+                overflow-x: auto;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>StockSim</h1>
+    <nav>
+        <a href="#">Home</a>
+        <a href="#holdings">Portfolio</a>
+        <a href="#about">About</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <div class="cards">
+        <div class="card">
+            <p>Total Portfolio Value</p>
+            <h2>₹1,00,000</h2>
+            <p>Virtual Cash: ₹50,000</p>
+        </div>
+
+        <div class="card">
+            <p>Today's Profit/Loss</p>
+            <h2>+ ₹2,500</h2>
+            <p class="up">+2.5%</p>
+        </div>
+    </div>
+
+    <h2>Stock Market</h2>
+
+    <table>
+        <tr>
+            <th>Company</th>
+            <th>Current Price (₹)</th>
+            <th>Change</th>
+            <th>Action</th>
+        </tr>
+        <tr>
+            <td>Reliance Industries</td>
+            <td>1450</td>
+            <td class="up">+2.5%</td>
+            <td><button class="buy">Buy</button>
+                <button class="sell">Sell</button></td>
+        </tr>
+        <tr>
+            <td>TCS</td>
+            <td>3800</td>
+            <td class="down">-1.2%</td>
+            <td><button class="buy">Buy</button>
+                <button class="sell">Sell</button></td>
+        </tr>
+        <tr>
+            <td>Infosys</td>
+            <td>1600</td>
+            <td class="up">+1.8%</td>
+            <td><button class="buy">Buy</button>
+                <button class="sell">Sell</button></td>
+        </tr>
+        <tr>
+            <td>HDFC Bank</td>
+            <td>1720</td>
+            <td class="down">-0.5%</td>
+            <td><button class="buy">Buy</button>
+                <button class="sell">Sell</button></td>
+        </tr>
+        <tr>
+            <td>ITC</td>
+            <td>450</td>
+            <td class="up">+0.9%</td>
+            <td><button class="buy">Buy</button>
+                <button class="sell">Sell</button></td>
+        </tr>
+    </table>
+
+    <h2 id="holdings">Your Holdings</h2>
+
+    <table>
+        <tr>
+            <th>Company</th>
+            <th>Shares</th>
+            <th>Average Price (₹)</th>
+            <th>Current Price (₹)</th>
+            <th>Total Value (₹)</th>
+            <th>Profit/Loss</th>
+        </tr>
+        <tr>
+            <td>Reliance Industries</td>
+            <td>10</td>
+            <td>1400</td>
+            <td>1450</td>
+            <td>14500</td>
+            <td class="up">+500</td>
+        </tr>
+    </table>
+
+</div>
+
+<footer id="about">
+    StockSim | Practice trading with virtual money
+</footer>
+
+</body>
+</html>
