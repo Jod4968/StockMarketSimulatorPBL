@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -8,18 +9,88 @@
 
 using namespace std;
 
-struct Stock {
+// ---------- Stock Class ----------
+
+class Stock {
+private:
     string symbol;
     string name;
     double price;
-    double prevPrice;   // price before the last "Next Day"
+    double prevPrice;
+
+public:
+    Stock(string s, string n, double p)
+        : symbol(s), name(n), price(p), prevPrice(p) {}
+
+    string getSymbol() const {
+        return symbol;
+    }
+
+    string getName() const {
+        return name;
+    }
+
+    double getPrice() const {
+        return price;
+    }
+
+    double getPrevPrice() const {
+        return prevPrice;
+    }
+
+    void updatePrice(int change) {
+        prevPrice = price;
+        price += price * change / 100.0;
+
+        if (price < 1.0) {
+            price = 1.0;
+        }
+    }
+
+    double changePercent() const {
+        if (prevPrice == 0) return 0;
+        return (price - prevPrice) / prevPrice * 100.0;
+    }
 };
 
-struct Holding {
+
+// ---------- Holding Class ----------
+
+class Holding {
+private:
     string symbol;
     int quantity;
-    double buyPrice;    // average buy price
+    double buyPrice;
+
+public:
+    Holding(string s, int q, double p)
+        : symbol(s), quantity(q), buyPrice(p) {}
+
+    string getSymbol() const {
+        return symbol;
+    }
+
+    int getQuantity() const {
+        return quantity;
+    }
+
+    double getBuyPrice() const {
+        return buyPrice;
+    }
+
+    void addShares(int qty, double price) {
+        double oldCost = buyPrice * quantity;
+        quantity += qty;
+        buyPrice = (oldCost + price * qty) / quantity;
+    }
+
+    void removeShares(int qty) {
+        quantity -= qty;
+    }
 };
+
+
+// ---------- Global Data ----------
 
 vector<Stock> market;
 vector<Holding> portfolio;
@@ -30,14 +101,15 @@ int day = 1;
 
 // ---------- Helpers ----------
 
-// Safely read an integer (no infinite loop on bad input)
 int readInt() {
     int x;
+
     while (!(cin >> x)) {
         cin.clear();
         cin.ignore(10000, '\n');
         cout << "Invalid input. Enter a number: ";
     }
+
     cin.ignore(10000, '\n');
     return x;
 }
@@ -46,9 +118,11 @@ string readSymbol() {
     string symbol;
     cin >> symbol;
     cin.ignore(10000, '\n');
+
     for (int i = 0; i < (int)symbol.size(); i++) {
-        symbol[i] = toupper(symbol[i]);
+        symbol[i] = toupper((unsigned char)symbol[i]);
     }
+
     return symbol;
 }
 
@@ -56,63 +130,55 @@ string readSymbol() {
 // ---------- Market ----------
 
 void setupMarket() {
-    market.push_back({"TCS", "Tata Consultancy Services", 3800.0, 3800.0});
-    market.push_back({"INFY", "Infosys Ltd", 1550.0, 1550.0});
-    market.push_back({"RELIANCE", "Reliance Industries", 2950.0, 2950.0});
-    market.push_back({"HDFC", "HDFC Bank Ltd", 1650.0, 1650.0});
-    market.push_back({"WIPRO", "Wipro Ltd", 480.0, 480.0});
-    market.push_back({"ITC", "ITC Ltd", 430.0, 430.0});
-    market.push_back({"SBIN", "State Bank of India", 810.0, 810.0});
+    market.emplace_back("TCS", "Tata Consultancy Services", 3800.0);
+    market.emplace_back("INFY", "Infosys Ltd", 1550.0);
+    market.emplace_back("RELIANCE", "Reliance Industries", 2950.0);
+    market.emplace_back("HDFC", "HDFC Bank Ltd", 1650.0);
+    market.emplace_back("WIPRO", "Wipro Ltd", 480.0);
+    market.emplace_back("ITC", "ITC Ltd", 430.0);
+    market.emplace_back("SBIN", "State Bank of India", 810.0);
 }
 
-// Move to next day: prices change randomly by -10% to +10%
 void nextDay() {
     for (int i = 0; i < (int)market.size(); i++) {
         int change = rand() % 21 - 10;
-
-        market[i].prevPrice = market[i].price;
-        market[i].price += market[i].price * change / 100.0;
-
-        if (market[i].price < 1.0) {
-            market[i].price = 1.0;   // price floor
-        }
+        market[i].updatePrice(change);
     }
+
     day++;
-    cout << "\nDay " << day << " begins. Prices have been updated.\n";
+    cout << "\nDay " << day
+         << " begins. Prices have been updated.\n";
 }
 
 int findStock(const string& symbol) {
     for (int i = 0; i < (int)market.size(); i++) {
-        if (market[i].symbol == symbol) {
+        if (market[i].getSymbol() == symbol) {
             return i;
         }
     }
+
     return -1;
 }
 
 int findHolding(const string& symbol) {
     for (int i = 0; i < (int)portfolio.size(); i++) {
-        if (portfolio[i].symbol == symbol) {
+        if (portfolio[i].getSymbol() == symbol) {
             return i;
         }
     }
-    return -1;
-}
 
-double changePercent(const Stock& s) {
-    if (s.prevPrice == 0) return 0;
-    return (s.price - s.prevPrice) / s.prevPrice * 100.0;
+    return -1;
 }
 
 void showMarket() {
     cout << "\n-- STOCK MARKET (Day " << day << ") --\n";
 
     for (int i = 0; i < (int)market.size(); i++) {
-        double pct = changePercent(market[i]);
+        double pct = market[i].changePercent();
 
-        cout << market[i].symbol
-             << " (" << market[i].name
-             << ") - Price: Rs " << market[i].price
+        cout << market[i].getSymbol()
+             << " (" << market[i].getName()
+             << ") - Price: Rs " << market[i].getPrice()
              << " [" << (pct >= 0 ? "+" : "") << pct << "%]\n";
     }
 }
@@ -124,13 +190,13 @@ void searchStock() {
     int index = findStock(symbol);
 
     if (index != -1) {
-        double pct = changePercent(market[index]);
+        Stock& s = market[index];
+        double pct = s.changePercent();
 
-        cout << "Found: " << market[index].name
-             << ", Price: Rs " << market[index].price
+        cout << "Found: " << s.getName()
+             << ", Price: Rs " << s.getPrice()
              << " [" << (pct >= 0 ? "+" : "") << pct << "%]\n";
-    }
-    else {
+    } else {
         cout << "Stock not found.\n";
     }
 }
@@ -157,7 +223,7 @@ void buyStock() {
         return;
     }
 
-    double price = market[index].price;
+    double price = market[index].getPrice();
     double totalCost = price * qty;
 
     if (totalCost > balance) {
@@ -165,25 +231,19 @@ void buyStock() {
         return;
     }
 
-    balance -= totalCost;
-
     int holdingIndex = findHolding(symbol);
 
+    // Update an existing holding or create a new one.
     if (holdingIndex != -1) {
-        // Update average buy price
-        double oldCost = portfolio[holdingIndex].buyPrice * portfolio[holdingIndex].quantity;
-        portfolio[holdingIndex].quantity += qty;
-        portfolio[holdingIndex].buyPrice = (oldCost + totalCost) / portfolio[holdingIndex].quantity;
-    }
-    else {
-        Holding newHolding;
-        newHolding.symbol = symbol;
-        newHolding.quantity = qty;
-        newHolding.buyPrice = price;
-        portfolio.push_back(newHolding);
+        portfolio[holdingIndex].addShares(qty, price);
+    } else {
+        portfolio.emplace_back(symbol, qty, price);
     }
 
-    cout << "Bought " << qty << " " << symbol << " @ Rs " << price << " each.\n";
+    balance -= totalCost;
+
+    cout << "Bought " << qty << " " << symbol
+         << " @ Rs " << price << " each.\n";
     cout << "Total: Rs " << totalCost << "\n";
     cout << "Balance left: Rs " << balance << "\n";
 }
@@ -207,24 +267,27 @@ void sellStock() {
         return;
     }
 
-    if (qty > portfolio[holdingIndex].quantity) {
+    if (qty > portfolio[holdingIndex].getQuantity()) {
         cout << "You do not have enough shares.\n";
         return;
     }
 
     int marketIndex = findStock(symbol);
-    double price = market[marketIndex].price;
+    double price = market[marketIndex].getPrice();
+
     double totalAmount = price * qty;
-    double profit = (price - portfolio[holdingIndex].buyPrice) * qty;
+    double profit =
+        (price - portfolio[holdingIndex].getBuyPrice()) * qty;
 
     balance += totalAmount;
-    portfolio[holdingIndex].quantity -= qty;
+    portfolio[holdingIndex].removeShares(qty);
 
-    if (portfolio[holdingIndex].quantity == 0) {
+    if (portfolio[holdingIndex].getQuantity() == 0) {
         portfolio.erase(portfolio.begin() + holdingIndex);
     }
 
-    cout << "Sold " << qty << " " << symbol << " @ Rs " << price << " each.\n";
+    cout << "Sold " << qty << " " << symbol
+         << " @ Rs " << price << " each.\n";
     cout << "Received: Rs " << totalAmount << "\n";
     cout << "Profit/Loss on this sale: Rs " << profit << "\n";
     cout << "Current balance: Rs " << balance << "\n";
@@ -246,19 +309,23 @@ void showPortfolio() {
     double totalCurrent = 0;
 
     for (int i = 0; i < (int)portfolio.size(); i++) {
-        int marketIndex = findStock(portfolio[i].symbol);
+        int marketIndex = findStock(portfolio[i].getSymbol());
 
-        double currentPrice = market[marketIndex].price;
-        double currentValue = currentPrice * portfolio[i].quantity;
-        double investedValue = portfolio[i].buyPrice * portfolio[i].quantity;
+        double currentPrice = market[marketIndex].getPrice();
+        double currentValue =
+            currentPrice * portfolio[i].getQuantity();
+
+        double investedValue =
+            portfolio[i].getBuyPrice() * portfolio[i].getQuantity();
+
         double profitLoss = currentValue - investedValue;
 
         totalInvested += investedValue;
         totalCurrent += currentValue;
 
-        cout << "\nStock: " << portfolio[i].symbol;
-        cout << "\nQuantity: " << portfolio[i].quantity;
-        cout << "\nAvg Buy Price: Rs " << portfolio[i].buyPrice;
+        cout << "\nStock: " << portfolio[i].getSymbol();
+        cout << "\nQuantity: " << portfolio[i].getQuantity();
+        cout << "\nAvg Buy Price: Rs " << portfolio[i].getBuyPrice();
         cout << "\nCurrent Price: Rs " << currentPrice;
         cout << "\nCurrent Value: Rs " << currentValue;
         cout << "\nProfit/Loss: Rs " << profitLoss << "\n";
@@ -267,9 +334,10 @@ void showPortfolio() {
     cout << "\n---------------------------";
     cout << "\nTotal Invested: Rs " << totalInvested;
     cout << "\nCurrent Holdings Value: Rs " << totalCurrent;
-    cout << "\nTotal Profit/Loss: Rs " << (totalCurrent - totalInvested);
+    cout << "\nTotal Profit/Loss: Rs "
+         << totalCurrent - totalInvested;
     cout << "\nCash Balance: Rs " << balance;
-    cout << "\nNet Worth: Rs " << (balance + totalCurrent) << "\n";
+    cout << "\nNet Worth: Rs " << balance + totalCurrent << "\n";
 }
 
 void showBalance() {
@@ -293,11 +361,12 @@ void printMenu() {
 }
 
 int main() {
-    srand(time(0));
+    srand((unsigned int)time(0));
     setupMarket();
 
     cout << fixed << setprecision(2);
-    cout << "Welcome! Starting virtual balance is: Rs " << balance << "\n";
+    cout << "Welcome! Starting virtual balance is: Rs "
+         << balance << "\n";
 
     int choice = 0;
 
